@@ -3,6 +3,7 @@
 namespace App;
 
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,19 +23,14 @@ class FreeDay extends Model
 
     public static function jumlah_hk($month) : int
     {
-        $month = $month ?? '2022-01';
+        $month = $month ?? Carbon::now();
         $start = Carbon::parse($month)->startOfMonth();
         $end = Carbon::parse($month)->endOfMonth();
 
-        $dates = [];
-        while ($start->lte($end)) {
-            if($start->isWeekday() || self::where('date', $start)->exists()){}
-            else{
-                $dates[] = $start->copy();
-            }
-            $start->addDay();
-        }
+        $periode = CarbonPeriod::create($start, $end)->filter(function(Carbon $date){
+            return $date->isWeekday() && FreeDay::where('date', $date->format('Y-m-d'))->doesntExist();
+        });
 
-        return $end->daysInMonth - count($dates);
+        return $periode->count();
     }
 }

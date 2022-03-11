@@ -144,16 +144,16 @@ class RekapBulan implements FromArray, WithEvents
                             $semua->each(fn($d) => $type[$d]++);
                             $temp[] = implode(', ', $semua->toArray());
 
-                            // if($semua->search('TAD', true) && $semua->search('TAP', true) )
-                            // {
-                            //     $TOTAL_ALPHA = 8.5 * 60;
-                            // }
+                            if($semua->search('TAD', true) || $semua->search('TAP', true) )
+                            {
+                                $TOTAL_ALPHA = self::JAM_SEHARI * 60;
+                            }
 
                             foreach($semua as $key => $cilik){
-                                if(in_array($cilik, ['TAD', 'TAP'])){
-                                    $TOTAL_ALPHA += self::JAM_SEHARI * 60;
-                                }
-                                elseif(in_array($cilik, ['T1', 'T2', 'T3', 'T4'])){
+                                // if(in_array($cilik, ['TAD', 'TAP'])){
+                                //     $TOTAL_ALPHA += self::JAM_SEHARI * 60;
+                                // }
+                                if(in_array($cilik, ['T1', 'T2', 'T3', 'T4'])){
                                     $TOTAL_TERLAMBAT += Presence::find($key)->value;
                                 }
                                 elseif(in_array($cilik, ['PC1', 'PC2', 'PC3', 'PC4'])){

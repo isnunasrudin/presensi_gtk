@@ -18,7 +18,7 @@ class FreeDay extends Model
 
     public static function isFree(Carbon $date) : bool
     {
-        return $date->isWeekend() || self::where('date', $date)->exists();
+        return $date->isWeekend() || self::where('date', $date->format('Y-m-d'))->exists();
     }
 
     public static function jumlah_hk($month) : int

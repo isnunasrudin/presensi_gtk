@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\BeforeWriting;
@@ -17,7 +18,7 @@ use Maatwebsite\Excel\Facades\Excel as FacadesExcel;
 use Maatwebsite\Excel\Files\LocalTemporaryFile;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
-class RekapBulan implements FromArray, WithEvents
+class RekapBulan implements FromCollection, WithEvents
 {
     private $bulan;
 
@@ -62,7 +63,7 @@ class RekapBulan implements FromArray, WithEvents
     public function __construct($bulan)
     {
         $this->bulan    = Carbon::parse($bulan);
-        $this->ptks     = Ptk::all();
+        $this->ptks     = Ptk::orderByRaw('CASE WHEN id = 1 THEN 0 ELSE 1 END')->orderBy('name')->get();
 
         //Init Tanggal
         $start  = $this->bulan->copy();
@@ -72,9 +73,9 @@ class RekapBulan implements FromArray, WithEvents
 
     }
 
-    public function array(): array
+    public function collection()
     {
-        return $this->ptks->map(function(Ptk $ptk, $i){
+        $dadi = $this->ptks->map(function(Ptk $ptk, $i){
 
             $type = [
                     "X" => 0,
@@ -121,7 +122,7 @@ class RekapBulan implements FromArray, WithEvents
             $temp[] = null;
 
             //No
-            $temp[] = $i;
+            $temp[] = ($i + 1);
 
             //Nama
             $temp[] = $ptk->name;
@@ -129,7 +130,7 @@ class RekapBulan implements FromArray, WithEvents
             $temp[] = null;
 
             //Presensi
-            for($i = 0; $i < 31; $i++){
+            for($i = 1; $i <= 31; $i++){
                 $waktu = $this->bulan->copy();
 
                 if($i > $this->end->day){
@@ -141,7 +142,6 @@ class RekapBulan implements FromArray, WithEvents
                         if($presence->count()){
                             $semua = $presence->get()->pluck('type', 'id');
 
-                            $semua->each(fn($d) => $type[$d]++);
                             $temp[] = implode(', ', $semua->toArray());
 
                             if($semua->search('TAD', true) || $semua->search('TAP', true) )
@@ -150,6 +150,7 @@ class RekapBulan implements FromArray, WithEvents
                             }
 
                             foreach($semua as $key => $cilik){
+                                $type[$cilik]++;
                                 // if(in_array($cilik, ['TAD', 'TAP'])){
                                 //     $TOTAL_ALPHA += self::JAM_SEHARI * 60;
                                 // }
@@ -159,6 +160,14 @@ class RekapBulan implements FromArray, WithEvents
                                 elseif(in_array($cilik, ['PC1', 'PC2', 'PC3', 'PC4'])){
                                     $TOTAL_PCEPAT += Presence::find($key)->value;
                                 }
+                            }
+
+                            if(
+                                !($semua->search('TAD', true) && $semua->search('TAP', true)) &&
+                                !$semua->search('S', true) && !$semua->search('I', true) &&
+                                !$semua->search('DL', true)
+                            ){
+                                $type['Y']++;
                             }
 
                         }else{
@@ -236,13 +245,23 @@ class RekapBulan implements FromArray, WithEvents
             $temp[] = ($TOTAL_ALPHA + $TOTAL_TERLAMBAT + $TOTAL_PCEPAT) . " Menit";
 
             //PERSENTASE
-            // $temp[] = (self::JAM_SEHARI * 100 / (FreeDay::jumlah_hk($this->bulan->format('Y-m') * self::JAM_SEHARI))) . "%";
+            $total_menit = FreeDay::jumlah_hk($this->bulan->format('Y-m')) * self::JAM_SEHARI * 60;
+            $temp[] = round(100 - (($total_menit - ($TOTAL_ALPHA + $TOTAL_TERLAMBAT + $TOTAL_PCEPAT)) * 100 / $total_menit));
 
-
+            //TOTAL KONVERSI
+            $temp[] = gmdate('H:i:s', ($TOTAL_ALPHA + $TOTAL_TERLAMBAT + $TOTAL_PCEPAT) * 60);
             return $temp;
 
 
-        })->toArray();
+        })->sortByDesc(function($data){
+            if($data[2] == "Dr. SUYITNO, M.Pd") return 1000;
+            return $data[70];
+        })->map(function($data){
+            $data[70] .= "%";
+            return $data;
+        })->values();
+
+        return $dadi;
     }
 
     public function registerEvents(): array

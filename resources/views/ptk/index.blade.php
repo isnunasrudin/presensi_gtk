@@ -8,7 +8,7 @@
     <div class="d-flex">
         <div class="d-block">
             <button class="btn btn-primary mb-3" id="ket">Tambah Keterangan</button>
-            <button class="btn btn-primary mb-3" id="rekap" disabled>Rekap</button>
+            <a class="btn btn-primary mb-3" href="{{ route('ptk.download') }}">Rekap</a>
         </div>
         <form class="ml-auto d-flex">
             <input type="text" name="kapan" class="form-control" style="width: 100px" value="{{ request()->get('kapan') ?? \Carbon\Carbon::now()->format('Y-m') }}">

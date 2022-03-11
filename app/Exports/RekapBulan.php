@@ -146,7 +146,7 @@ class RekapBulan implements FromCollection, WithEvents
 
                             if($semua->search('TAD', true) || $semua->search('TAP', true) )
                             {
-                                $TOTAL_ALPHA = self::JAM_SEHARI * 60;
+                                $TOTAL_ALPHA += self::JAM_SEHARI * 60;
                             }
 
                             foreach($semua as $key => $cilik){

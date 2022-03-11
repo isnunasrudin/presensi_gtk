@@ -27,54 +27,58 @@
         </div>
     @endif
 
-    <table class="table table-bordered table-stripped table-sm">
-        <thead>
-            <tr>
-                <th rowspan="2" class="text-center">No</th>
-                <th rowspan="2" class="text-center">Nama</th>
-                <th colspan="{{ count($days) }}" class="text-center">Tanggal</th>
-                {{-- <!-- <th>Email</th>
-                <th>#</th> --> --}}
-            </tr>
-            <tr>
-                @foreach ($days as $day)
-                    <th>{{ $day->format('d') }}</th>
-                @endforeach
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($ptks as $ptk)
+    <div class="table-responsive">
+
+        <table class="table table-bordered table-stripped table-sm">
+            <thead>
                 <tr>
-                    <td scope="row">{{ $loop->iteration }}</td>
-                    <td>{{ $ptk->name }}</td>
-                    @foreach ($days as $day)
-                        @if($day->isWeekend())
-                        <td class="bg-secondary"></td>
-                        @elseif (App\FreeDay::isFree($day))
-                        <td class="bg-danger"></td>
-                        @else
-                            @if (App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->count())
-                                <td class="bg-warning">{{ implode(", ", App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->get()->pluck('type')->toArray()) }}</td>
-                            @else
-                            <td>Y</td>
-                            @endif
-                        @endif
-                    @endforeach
-                    {{-- <!-- <td>{{ $user->email }}</td>
-                    <td>
-                        <div class="d-flex">
-                            <a href="{{ route('basic.edit', $user->id) }}" class="btn btn-sm btn-primary mr-2">Edit</a>
-                            <form action="{{ route('basic.destroy', $user->id) }}" method="post">
-                                @csrf
-                                @method('delete')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure to delete this?')">Delete</button>
-                            </form>
-                        </div>
-                    </td> --> --}}
+                    <th rowspan="2" class="text-center">No</th>
+                    <th rowspan="2" class="text-center">Nama</th>
+                    <th colspan="{{ count($days) }}" class="text-center">Tanggal</th>
+                    {{-- <!-- <th>Email</th>
+                    <th>#</th> --> --}}
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+                <tr>
+                    @foreach ($days as $day)
+                        <th>{{ $day->format('d') }}</th>
+                    @endforeach
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($ptks as $ptk)
+                    <tr>
+                        <td scope="row">{{ $loop->iteration }}</td>
+                        <td>{{ $ptk->name }}</td>
+                        @foreach ($days as $day)
+                            @if($day->isWeekend())
+                            <td class="bg-secondary"></td>
+                            @elseif (App\FreeDay::isFree($day))
+                            <td class="bg-danger"></td>
+                            @else
+                                @if (App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->count())
+                                    <td class="bg-warning">{{ implode(", ", App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->get()->pluck('type')->toArray()) }}</td>
+                                @else
+                                <td>Y</td>
+                                @endif
+                            @endif
+                        @endforeach
+                        {{-- <!-- <td>{{ $user->email }}</td>
+                        <td>
+                            <div class="d-flex">
+                                <a href="{{ route('basic.edit', $user->id) }}" class="btn btn-sm btn-primary mr-2">Edit</a>
+                                <form action="{{ route('basic.destroy', $user->id) }}" method="post">
+                                    @csrf
+                                    @method('delete')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure to delete this?')">Delete</button>
+                                </form>
+                            </div>
+                        </td> --> --}}
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+    </div>
 
     {{-- <!-- {{ $users->links() }} --> --}}
 

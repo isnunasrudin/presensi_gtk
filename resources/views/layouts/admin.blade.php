@@ -97,6 +97,14 @@
             </a>
         </li>
 
+        <!-- Nav Item -->
+        <li class="nav-item {{ Nav::isRoute('ptk.libur') }}">
+            <a class="nav-link" href="{{ route('ptk.libur') }}">
+                <i class="fas fa-fw fa-book"></i>
+                <span>{{ __('PTK Libur') }}</span>
+            </a>
+        </li>
+
         <!-- Divider -->
         <hr class="sidebar-divider d-none d-md-block">
 

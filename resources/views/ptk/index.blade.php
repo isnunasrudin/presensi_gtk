@@ -5,11 +5,21 @@
     <h1 class="h3 mb-4 text-gray-800">{{ $title ?? __('Blank Page') }}</h1>
 
     <!-- Main Content goes here -->
+    <div class="d-flex">
+        <div class="d-block">
+            <button class="btn btn-primary mb-3" id="ket">Tambah Keterangan</button>
+            <button class="btn btn-primary mb-3" id="rekap" disabled>Rekap</button>
+        </div>
+        <form class="ml-auto d-flex">
+            <input type="text" name="kapan" class="form-control" style="width: 100px" value="{{ request()->get('kapan') ?? \Carbon\Carbon::now()->format('Y-m') }}">
+            <button class="btn btn-primary mb-3 ml-2" id="ket">Update</button>
+        </form>
+    </div>
 
-    <button class="btn btn-primary mb-3" id="ket">Tambah Keterangan</button>
-    <button class="btn btn-primary mb-3" id="rekap" disabled>Rekap</button>
-
-    <div class="alert alert-success">Hari Kerja : {{ App\FreeDay::jumlah_hk("2022-01") }}</div>
+    <div class="alert alert-success">
+        {{ \Carbon\Carbon::parse(request()->get('kapan') ?? now())->formatLocalized('%B %Y') }}<br />
+        Hari Kerja : {{ App\FreeDay::jumlah_hk(request()->get('kapan') ?? \Carbon\Carbon::now()->format('Y-m')) }}
+    </div>
 
     @if (session('message'))
         <div class="alert alert-success">
@@ -38,15 +48,16 @@
                     <td scope="row">{{ $loop->iteration }}</td>
                     <td>{{ $ptk->name }}</td>
                     @foreach ($days as $day)
-                        @if (App\FreeDay::isFree($day))
+                        @if($day->isWeekend())
+                        <td class="bg-secondary"></td>
+                        @elseif (App\FreeDay::isFree($day))
                         <td class="bg-danger"></td>
                         @else
-                        @if (App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->count())
-                            <td class="bg-warning">{{ implode(",", App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->get()->pluck('type')->toArray()) }}</td>
-
-                        @else
-                        <td>Y</td>
-                        @endif
+                            @if (App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->count())
+                                <td class="bg-warning">{{ implode(", ", App\Presence::where('date', $day)->where('ptk_id', $ptk->id)->get()->pluck('type')->toArray()) }}</td>
+                            @else
+                            <td>Y</td>
+                            @endif
                         @endif
                     @endforeach
                     {{-- <!-- <td>{{ $user->email }}</td>
@@ -106,7 +117,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label>Tanggal</label>
-                            <input type="date" class="form-control" name="date" placeholder="Masukkan" value="{{ \Carbon\Carbon::parse('2022-01-01')->format('Y-m-d') }}">
+                            <input type="date" class="form-control" name="date" placeholder="Masukkan" value="{{ request()->get('kapan') ? (request()->get('kapan') . '-01') : \Carbon\Carbon::now()->format('Y-m') }}">
                         </div>
                     </div>
                     <div class="col">

@@ -35,5 +35,10 @@ Route::middleware('auth')->group(function() {
     Route::group(['as' => 'ptk.', 'prefix' => 'ptk'], function(){
         Route::get('/', "PtkController@index")->name('/');
         Route::post('addPresence', 'PtkController@addPresence')->name('addPresence');
+
+        Route::get('libur', "PtkController@libur")->name('libur');
+        Route::post('libur', "PtkController@libur_post");
+
+        Route::get('rekap', "PtkController@rekap")->name('download');
     });
 });

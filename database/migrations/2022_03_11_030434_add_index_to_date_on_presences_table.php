@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('free_days', function (Blueprint $table) {
-            $table->id();
-            $table->date('date')->index()->unique();
-            $table->string('name');
-            $table->timestamps();
+        Schema::table('presences', function (Blueprint $table) {
+            $table->index('date', 'index_date');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('free_days');
+        Schema::table('presences', function (Blueprint $table) {
+            $table->dropIndex('index_date');
+        });
     }
 };

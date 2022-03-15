@@ -242,7 +242,7 @@ class RekapBulan implements FromCollection, WithEvents
             $temp[] = gmdate('H:i:s', $TOTAL_PCEPAT * 60);
 
             //AKUMULASI
-            $temp[] = ($TOTAL_ALPHA + $TOTAL_TERLAMBAT + $TOTAL_PCEPAT) . " Menit";
+            $temp[] = ($TOTAL_ALPHA + $TOTAL_TERLAMBAT + $TOTAL_PCEPAT);
 
             //PERSENTASE
             $total_menit = FreeDay::jumlah_hk($this->bulan->format('Y-m')) * self::JAM_SEHARI * 60;
@@ -255,9 +255,10 @@ class RekapBulan implements FromCollection, WithEvents
 
         })->sortByDesc(function($data){
             if($data[2] == "Dr. SUYITNO, M.Pd") return 1000;
-            return $data[70];
+            return $data[69];
         })->map(function($data){
             $data[70] .= "%";
+            $data[69] .= " Menit";
             return $data;
         })->values();
 

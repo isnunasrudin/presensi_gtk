@@ -254,7 +254,7 @@ class RekapBulan implements FromCollection, WithEvents
 
 
         })->sortByDesc(function($data){
-            if($data[2] == "Dr. SUYITNO, M.Pd") return 1000;
+            if($data[2] == "Dr. SUYITNO, M.Pd") return 1000000;
             return $data[69];
         })->map(function($data){
             $data[70] .= "%";
